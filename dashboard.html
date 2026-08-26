@@ -1,0 +1,66 @@
+{% extends 'tasks/base.html' %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-slate-900">
+            {% if is_admin %} Admin Portal Dashboard {% else %} My Workspace {% endif %}
+        </h1>
+        {% if is_admin %}
+            <a href="{% url 'create_task' %}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded shadow text-sm font-medium transition">+ Assign New Task</a>
+        {% endif %}
+    </div>
+
+    <!-- Metrics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow border border-slate-200">
+            <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Total Tasks</p>
+            <p class="text-3xl font-extrabold text-slate-900 mt-2">{{ total_tasks }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow border border-slate-200">
+            <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Completed Tasks</p>
+            <p class="text-3xl font-extrabold text-emerald-600 mt-2">{{ completed_tasks }}</p>
+        </div>
+        {% if is_admin %}
+        <div class="bg-white p-6 rounded-lg shadow border border-slate-200">
+            <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Registered Users</p>
+            <p class="text-3xl font-extrabold text-blue-600 mt-2">{{ total_users }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Data Table -->
+    <div class="bg-white shadow rounded-lg overflow-hidden border border-slate-200">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider">
+                <tr>
+                    <th class="p-4 border-b">Task Title</th>
+                    {% if is_admin %}<th class="p-4 border-b">Assigned User</th>{% endif %}
+                    <th class="p-4 border-b">Status</th>
+                    <th class="p-4 border-b">Date Created</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-sm">
+                {% for task in tasks %}
+                <tr class="hover:bg-slate-50">
+                    <td class="p-4 font-medium text-slate-900">{{ task.title }}</td>
+                    {% if is_admin %}<td class="p-4 text-slate-600">{{ task.assigned_to.username }}</td>{% endif %}
+                    <td class="p-4">
+                        <span class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full 
+                            {% if task.status == 'completed' %} bg-emerald-100 text-emerald-800 
+                            {% elif task.status == 'in_progress' %} bg-amber-100 text-amber-800 
+                            {% else %} bg-slate-100 text-slate-800 {% endif %}">
+                            {{ task.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="p-4 text-slate-500">{{ task.created_at|date:"M d, Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="p-6 text-center text-slate-400">No tasks found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
